@@ -8,7 +8,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-import NecroWeapon.SpriteData;
 public class Main implements ActionListener {
     
     JFrame frame;

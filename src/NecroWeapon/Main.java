@@ -122,7 +122,6 @@ public class Main implements ActionListener {
     
     public void actionPerformed(ActionEvent event) {
         String eventName = event.getActionCommand();
-        System.out.println(eventName);
         if (eventName.equals("browser")) {
             File selectedFile;
             JFileChooser fileChooser = new JFileChooser();
@@ -130,7 +129,6 @@ public class Main implements ActionListener {
             int result = fileChooser.showOpenDialog(null);
             if (result == JFileChooser.APPROVE_OPTION) {
                 selectedFile = fileChooser.getSelectedFile();
-                System.out.println("Selected file: " + selectedFile.getAbsolutePath());
                 imagePathField.setText(selectedFile.getAbsolutePath());
             }
         } else if (eventName.equals("modeAuto")) {
@@ -162,7 +160,6 @@ public class Main implements ActionListener {
                 } else {
                     targetMode = mode;
                 }
-                System.out.println(targetMode);
                 if (targetMode == 1) {
                     //game to split
                     File targetFile = new File(sourceFile.getParentFile(), "split-"+sourceFile.getName()); //output file

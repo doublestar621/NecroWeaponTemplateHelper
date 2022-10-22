@@ -87,15 +87,7 @@ public class Main implements ActionListener {
         radioGroup.add(templateToSplitButton);
         contentPane.add(templateToSplitButton);
         
-        //todo remove
-        // JRadioButton debugButton = new JRadioButton("Debug");
-        // debugButton.setActionCommand("modeDebug");
-        // debugButton.setAlignmentX(JButton.CENTER_ALIGNMENT);
-        // debugButton.addActionListener(this);
-        // radioGroup.add(debugButton);
-        // contentPane.add(debugButton);
-        
-        //open browser button
+        //convert button
         convert = new JButton("Convert");
         convert.setActionCommand("convert");
         convert.setAlignmentX(JButton.CENTER_ALIGNMENT);

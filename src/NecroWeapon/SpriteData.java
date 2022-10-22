@@ -138,16 +138,72 @@ public class SpriteData {
         return(glow);
     }
     
-    //stick second image onto first image, overriding anything in the way
+    //stick second image onto first image
     //moddifies the first image directly, so doesnt return anything
     public static void attachImage(BufferedImage base, BufferedImage add, int offX, int offY) {
-        int width = add.getWidth();
-        int height = add.getHeight();
+        // int width = add.getWidth();
+        // int height = add.getHeight();
+        // for (int x = 0; x < width; x++) {
+        //     for (int y = 0; y < height; y++) {
+        //         base.setRGB(x+offX, y+offY, add.getRGB(x, y));
+        //     }
+        // }
+        base.getGraphics().drawImage(add, offX, offY, null);
+        base.getGraphics().dispose();
+    }
+    
+    //for template images
+    //returns a bufferedimage with increased clearance if necessary
+    public static BufferedImage makeGlowClearance(BufferedImage image) {
+        boolean extendLeft = false;
+        boolean extendRight = false;
+        boolean extendUp = false;
+        boolean extendDown = false;
+        int width = image.getWidth();
+        int height = image.getHeight();
+        //top and bottom edges
         for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                base.setRGB(x+offX, y+offY, add.getRGB(x, y));
+            int top = new Color(image.getRGB(x, 0), true).getAlpha();
+            if (top > 0) {
+                extendUp = true;
+            }
+            int bottom = new Color(image.getRGB(x, height - 1), true).getAlpha();
+            if (bottom > 0) {
+                extendDown = true;
+            }
+            if (extendUp && extendDown) {
+                break;
             }
         }
+        //left and right edges
+        for (int y = 0; y < height; y++) {
+            int left = new Color(image.getRGB(0, y), true).getAlpha();
+            if (left > 0) {
+                extendLeft = true;
+            }
+            int right = new Color(image.getRGB(width - 1, y), true).getAlpha();
+            if (right > 0) {
+                extendRight = true;
+            }
+            if (extendLeft && extendRight) {
+                break;
+            }
+        }
+        if (extendLeft || extendDown || extendUp || extendRight) { //this is a reference to something
+            int targetWidth = width;
+            int targetHeight = height;
+            int offX = 0;
+            int offY = 0;
+            if (extendLeft) {targetWidth++;offX++;}
+            if (extendRight) {targetWidth++;}
+            if (extendUp) {targetHeight++;offY++;}
+            if (extendDown) {targetHeight++;}
+            BufferedImage expanded = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_ARGB);
+            attachImage(expanded, image, offX, offY);
+            return(expanded);
+        }
+        //no extra clearance needed
+        return(image);
     }
     
     //returns a compiled BufferedImage in the format CotND uses
@@ -182,37 +238,45 @@ public class SpriteData {
     //1 for necrodancer's format, 2 for this program's split format, 3 for a 1x1 generic template
     //of note: shine and aux layers are split into 3 in this object
     public SpriteData(BufferedImage rawImage, int type) { //true is split, false is game
+        //convert to a specific format for out purposes.
+        int w = rawImage.getWidth();
+        int h = rawImage.getHeight();
+        BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        image.getGraphics().drawImage(rawImage, 0, 0, null);
+        image.getGraphics().dispose();
         if (type == 2) {
-            width = rawImage.getWidth() / 5;
-            height = rawImage.getHeight() / 2;
-            mainLayer = rawImage.getSubimage(0,0,width,height);
+            width = image.getWidth() / 5;
+            height = image.getHeight() / 2;
+            mainLayer = image.getSubimage(0,0,width,height);
             shineLayers = new BufferedImage[]{
-                rawImage.getSubimage(width,0,width,height),
-                rawImage.getSubimage(width*2,0,width,height),
-                rawImage.getSubimage(width*3,0,width,height),
+                image.getSubimage(width,0,width,height),
+                image.getSubimage(width*2,0,width,height),
+                image.getSubimage(width*3,0,width,height),
             };
-            glowLayer = rawImage.getSubimage(0,height,width,height);
+            glowLayer = image.getSubimage(0,height,width,height);
             auxLayers = new BufferedImage[]{
-                rawImage.getSubimage(width,height,width,height),
-                rawImage.getSubimage(width*2,height,width,height),
-                rawImage.getSubimage(width*3,height,width,height),
+                image.getSubimage(width,height,width,height),
+                image.getSubimage(width*2,height,width,height),
+                image.getSubimage(width*3,height,width,height),
             };
-            staffGem = rawImage.getSubimage(width*4,0,width,height);
+            staffGem = image.getSubimage(width*4,0,width,height);
         } else if (type == 1) { //game format
-            width = rawImage.getWidth();
-            height = rawImage.getHeight() / 5;
-            mainLayer = rawImage.getSubimage(0,0,width,height);
-            shineLayers = splitRGB(rawImage.getSubimage(0,height,width,height));
-            glowLayer = rawImage.getSubimage(0,height*2,width,height);
-            auxLayers = splitRGB(rawImage.getSubimage(0,height*3,width,height));
-            staffGem = rawImage.getSubimage(0,height*4,width,height);
+            width = image.getWidth();
+            height = image.getHeight() / 5;
+            mainLayer = image.getSubimage(0,0,width,height);
+            shineLayers = splitRGB(image.getSubimage(0,height,width,height));
+            glowLayer = image.getSubimage(0,height*2,width,height);
+            auxLayers = splitRGB(image.getSubimage(0,height*3,width,height));
+            staffGem = image.getSubimage(0,height*4,width,height);
         } else { //1x1 template
-            width = rawImage.getWidth();
-            height = rawImage.getHeight();
-            mainLayer = rawImage;
-            BufferedImage silhouette = silhouette(rawImage);
+            //expand if needed
+            image = makeGlowClearance(image);
+            width = image.getWidth();
+            height = image.getHeight();
+            mainLayer = image;
+            BufferedImage silhouette = silhouette(image);
             shineLayers =  new BufferedImage[]{silhouette,silhouette,silhouette};
-            glowLayer = outline(rawImage);
+            glowLayer = outline(image);
             auxLayers =  new BufferedImage[]{silhouette,silhouette,silhouette};
             staffGem = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         }

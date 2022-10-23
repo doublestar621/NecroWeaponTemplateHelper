@@ -47,7 +47,7 @@ public class Main implements ActionListener {
         contentPane.add(imagePathField);
         
         //open browser button
-        openFileBrowser = new JButton("Open file browser...");
+        openFileBrowser = new JButton("Select image...");
         openFileBrowser.setActionCommand("browser");
         openFileBrowser.setAlignmentX(JButton.CENTER_ALIGNMENT);
         openFileBrowser.addActionListener(this);
@@ -80,7 +80,7 @@ public class Main implements ActionListener {
         radioGroup.add(splitToGameButton);
         contentPane.add(splitToGameButton);
         
-        templateToSplitButton = new JRadioButton("Template To Split");
+        templateToSplitButton = new JRadioButton("Template to Split");
         templateToSplitButton.setActionCommand("modeTemplateToSplit");
         templateToSplitButton.setAlignmentX(JButton.CENTER_ALIGNMENT);
         templateToSplitButton.addActionListener(this);
